@@ -13,14 +13,16 @@ public class ProductRepository : IProductRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<Product>> GetAllAsync()
+    public async Task<List<Product>> GetAllAsync(Guid userId)
     {
-        return await _dbContext.Products.AsNoTracking().ToListAsync();
+        return await _dbContext.Products.AsNoTracking()
+            .Where(p => p.UserId == userId)
+            .ToListAsync();
     }
 
-    public async Task<Product?> GetByIdAsync(Guid id)
+    public async Task<Product?> GetByIdAsync(Guid id, Guid userId)
     {
-        return await _dbContext.Products.FindAsync(id);
+        return await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
     }
 
     public async Task AddAsync(Product product)
