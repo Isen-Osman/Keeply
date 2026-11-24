@@ -13,23 +13,24 @@ public class ProductService
         _productRepository = productRepository;
     }
 
-    public async Task<List<ProductResponse>> GetAllAsync()
+    public async Task<List<ProductResponse>> GetAllAsync(Guid userId)
     {
-        var products = await _productRepository.GetAllAsync();
+        var products = await _productRepository.GetAllAsync(userId);
         return products.Select(MapToResponse).ToList();
     }
 
-    public async Task<ProductResponse?> GetByIdAsync(Guid id)
+    public async Task<ProductResponse?> GetByIdAsync(Guid id, Guid userId)
     {
-        var product = await _productRepository.GetByIdAsync(id);
+        var product = await _productRepository.GetByIdAsync(id, userId);
         return product is null ? null : MapToResponse(product);
     }
 
-    public async Task<ProductResponse> CreateAsync(CreateProductRequest request)
+    public async Task<ProductResponse> CreateAsync(CreateProductRequest request, Guid userId)
     {
         var product = new Product
         {
             Id = Guid.NewGuid(),
+            UserId = userId,
             Name = request.Name,
             Store = request.Store,
             Price = request.Price,
@@ -41,9 +42,9 @@ public class ProductService
         return MapToResponse(product);
     }
 
-    public async Task<ProductResponse?> UpdateAsync(Guid id, UpdateProductRequest request)
+    public async Task<ProductResponse?> UpdateAsync(Guid id, UpdateProductRequest request, Guid userId)
     {
-        var product = await _productRepository.GetByIdAsync(id);
+        var product = await _productRepository.GetByIdAsync(id, userId);
         if (product is null)
             return null;
 
@@ -57,9 +58,9 @@ public class ProductService
         return MapToResponse(product);
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(Guid id, Guid userId)
     {
-        var product = await _productRepository.GetByIdAsync(id);
+        var product = await _productRepository.GetByIdAsync(id, userId);
         if (product is null)
             return false;
 
@@ -71,6 +72,7 @@ public class ProductService
     {
         return new ProductResponse(
             product.Id,
+            product.UserId,
             product.Name,
             product.Store,
             product.Price,

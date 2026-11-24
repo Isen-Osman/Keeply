@@ -17,6 +17,7 @@ public class KeeplyDbContext : DbContext
         modelBuilder.Entity<Product>(entity =>
         {
             entity.HasKey(p => p.Id);
+            entity.Property(p => p.UserId).IsRequired();
             entity.Property(p => p.Name).HasMaxLength(200).IsRequired();
             entity.Property(p => p.Store).HasMaxLength(200).IsRequired();
             entity.Property(p => p.Price).HasColumnType("numeric(18,2)");
