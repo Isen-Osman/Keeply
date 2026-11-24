@@ -10,6 +10,7 @@ public class KeeplyDbContext : DbContext
     }
 
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +23,14 @@ public class KeeplyDbContext : DbContext
             entity.Property(p => p.PurchaseDate).IsRequired();
             entity.Property(p => p.WarrantyMonths).IsRequired();
             entity.Ignore(p => p.WarrantyExpirationDate);
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.Email).HasMaxLength(200).IsRequired();
+            entity.HasIndex(u => u.Email).IsUnique();
+            entity.Property(u => u.PasswordHash).IsRequired();
         });
     }
 }
