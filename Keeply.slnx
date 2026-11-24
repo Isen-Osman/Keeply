@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Keeply.API/Keeply.API.csproj" />
+  <Project Path="Keeply.Application/Keeply.Application.csproj" />
+  <Project Path="Keeply.Domain/Keeply.Domain.csproj" />
+  <Project Path="Keeply.Infrastructure/Keeply.Infrastructure.csproj" />
+  <Project Path="Keeply.IntegrationTests/Keeply.IntegrationTests.csproj" />
+  <Project Path="Keeply.UnitTests/Keeply.UnitTests.csproj" />
+</Solution>
