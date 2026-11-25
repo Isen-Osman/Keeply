@@ -17,6 +17,7 @@ public static class DependencyInjection
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IDocumentRepository, DocumentRepository>();
+        services.AddScoped<IWarrantyClaimRepository, WarrantyClaimRepository>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 
