@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Keeply.API.Contracts.Documents;
 using Keeply.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,13 +19,13 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> Upload([FromForm] Guid productId, [FromForm] IFormFile file)
+    public async Task<IActionResult> Upload([FromForm] UploadDocumentRequest request)
     {
-        if (file.Length == 0)
+        if (request.File.Length == 0)
             return BadRequest("File is required.");
 
-        await using var stream = file.OpenReadStream();
-        var result = await _documentService.UploadAsync(GetUserId(), productId, file.FileName, stream);
+        await using var stream = request.File.OpenReadStream();
+        var result = await _documentService.UploadAsync(GetUserId(), request.ProductId, request.File.FileName, stream);
         return result is null ? NotFound("Product not found.") : Ok(result);
     }
 
