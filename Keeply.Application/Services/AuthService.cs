@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Keeply.Application.DTOs.Auth;
 using Keeply.Application.Interfaces;
 using Keeply.Domain.Entities;
@@ -30,19 +31,53 @@ public class AuthService
             PasswordHash = _passwordHasher.Hash(request.Password)
         };
 
+        SetRefreshToken(user);
         await _userRepository.AddAsync(user);
-        return new AuthResponse(_jwtTokenGenerator.Generate(user));
+        return CreateAuthResponse(user);
     }
 
     public async Task<AuthResponse?> LoginAsync(LoginRequest request)
     {
         var user = await _userRepository.GetByEmailAsync(request.Email);
+        if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
+            return null;
+
+        SetRefreshToken(user);
+        await _userRepository.UpdateAsync(user);
+        return CreateAuthResponse(user);
+    }
+
+    public async Task<AuthResponse?> RefreshAsync(RefreshRequest request)
+    {
+        var user = await _userRepository.GetByRefreshTokenAsync(request.RefreshToken);
+        if (user is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            return null;
+
+        SetRefreshToken(user);
+        await _userRepository.UpdateAsync(user);
+        return CreateAuthResponse(user);
+    }
+
+    public async Task<bool> LogoutAsync(string refreshToken)
+    {
+        var user = await _userRepository.GetByRefreshTokenAsync(refreshToken);
         if (user is null)
-            return null;
+            return false;
 
-        if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
-            return null;
+        user.RefreshToken = null;
+        user.RefreshTokenExpiryTime = null;
+        await _userRepository.UpdateAsync(user);
+        return true;
+    }
 
-        return new AuthResponse(_jwtTokenGenerator.Generate(user));
+    private AuthResponse CreateAuthResponse(User user)
+    {
+        return new AuthResponse(_jwtTokenGenerator.Generate(user), user.RefreshToken!);
+    }
+
+    private static void SetRefreshToken(User user)
+    {
+        user.RefreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
     }
 }
