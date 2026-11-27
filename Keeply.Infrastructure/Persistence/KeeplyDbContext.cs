@@ -34,6 +34,8 @@ public class KeeplyDbContext : DbContext
             entity.Property(u => u.Email).HasMaxLength(200).IsRequired();
             entity.HasIndex(u => u.Email).IsUnique();
             entity.Property(u => u.PasswordHash).IsRequired();
+            entity.Property(u => u.RefreshToken).HasMaxLength(200);
+            entity.Property(u => u.RefreshTokenExpiryTime);
         });
 
         modelBuilder.Entity<Document>(entity =>
