@@ -19,10 +19,11 @@ public class WarrantyService
         return products.Select(MapToResponse).ToList();
     }
 
-    public async Task<List<WarrantyResponse>> GetExpiringAsync(Guid userId)
+    public async Task<List<WarrantyResponse>> GetExpiringAsync(Guid userId, int days = 30)
     {
+        if (days <= 0) days = 30;
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var limit = today.AddDays(30);
+        var limit = today.AddDays(days);
         var products = await _productRepository.GetAllAsync(userId);
 
         return products
