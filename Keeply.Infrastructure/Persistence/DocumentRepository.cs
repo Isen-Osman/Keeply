@@ -29,4 +29,9 @@ public class DocumentRepository : IDocumentRepository
         _dbContext.Documents.Remove(document);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<int> CountByUserIdAsync(Guid userId)
+    {
+        return await _dbContext.Documents.CountAsync(d => d.UserId == userId);
+    }
 }

@@ -12,6 +12,7 @@ public static class DependencyInjection
         services.AddScoped<WarrantyService>();
         services.AddScoped<DocumentService>();
         services.AddScoped<WarrantyClaimService>();
+        services.AddScoped<DashboardService>();
         return services;
     }
 }
