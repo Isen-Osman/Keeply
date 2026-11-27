@@ -25,11 +25,11 @@ public class DocumentsController : ControllerBase
         {
             await using var stream = request.File.OpenReadStream();
             var result = await _documentService.UploadAsync(User.GetUserId(), request.ProductId, request.File.FileName, stream, request.File.Length);
-            return result is null ? NotFound("Product not found.") : Ok(result);
+            return result is null ? Problem(title: "Product not found.", statusCode: StatusCodes.Status404NotFound) : Ok(result);
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(ex.Message);
+            return Problem(title: ex.Message, statusCode: StatusCodes.Status400BadRequest);
         }
     }
 

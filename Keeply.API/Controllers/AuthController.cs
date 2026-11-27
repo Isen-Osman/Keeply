@@ -19,7 +19,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await _authService.RegisterAsync(request);
-        return result is null ? Conflict("Email already exists.") : Ok(result);
+        return result is null ? Problem(title: "Email already exists.", statusCode: StatusCodes.Status409Conflict) : Ok(result);
     }
 
     [HttpPost("login")]

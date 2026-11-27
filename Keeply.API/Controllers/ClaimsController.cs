@@ -22,7 +22,7 @@ public class ClaimsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateClaimRequest request)
     {
         var result = await _claimService.CreateAsync(User.GetUserId(), request);
-        return result is null ? NotFound("Product not found.") : Ok(result);
+        return result is null ? Problem(title: "Product not found.", statusCode: StatusCodes.Status404NotFound) : Ok(result);
     }
 
     [HttpGet]
