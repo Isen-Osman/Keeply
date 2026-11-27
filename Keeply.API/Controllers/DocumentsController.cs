@@ -21,12 +21,16 @@ public class DocumentsController : ControllerBase
     [HttpPost("upload")]
     public async Task<IActionResult> Upload([FromForm] UploadDocumentRequest request)
     {
-        if (request.File.Length == 0)
-            return BadRequest("File is required.");
-
-        await using var stream = request.File.OpenReadStream();
-        var result = await _documentService.UploadAsync(User.GetUserId(), request.ProductId, request.File.FileName, stream);
-        return result is null ? NotFound("Product not found.") : Ok(result);
+        try
+        {
+            await using var stream = request.File.OpenReadStream();
+            var result = await _documentService.UploadAsync(User.GetUserId(), request.ProductId, request.File.FileName, stream, request.File.Length);
+            return result is null ? NotFound("Product not found.") : Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet("{id:guid}")]

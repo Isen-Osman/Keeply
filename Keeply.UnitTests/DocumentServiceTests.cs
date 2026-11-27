@@ -14,7 +14,7 @@ public class DocumentServiceTests
         var service = new DocumentService(new FakeDocumentRepository(), new FakeProductRepository([product]));
         using var stream = new MemoryStream([1, 2, 3]);
 
-        var uploaded = await service.UploadAsync(userId, product.Id, "receipt.txt", stream);
+        var uploaded = await service.UploadAsync(userId, product.Id, "receipt.txt", stream, stream.Length);
         Assert.NotNull(uploaded);
 
         var (doc, path) = await service.GetByIdAsync(uploaded!.Id, userId);

@@ -6,6 +6,9 @@ namespace Keeply.Application.Services;
 
 public class DocumentService
 {
+    private const long MaxFileSizeBytes = 5 * 1024 * 1024;
+    private static readonly HashSet<string> AllowedExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".txt"];
+
     private readonly IDocumentRepository _documentRepository;
     private readonly IProductRepository _productRepository;
 
@@ -15,8 +18,16 @@ public class DocumentService
         _productRepository = productRepository;
     }
 
-    public async Task<DocumentResponse?> UploadAsync(Guid userId, Guid productId, string fileName, Stream content)
+    public async Task<DocumentResponse?> UploadAsync(Guid userId, Guid productId, string fileName, Stream content, long fileSize)
     {
+        if (fileSize <= 0 || fileSize > MaxFileSizeBytes)
+            throw new ArgumentException("Invalid file size.");
+
+        var safeName = Path.GetFileName(fileName);
+        var ext = Path.GetExtension(safeName).ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(safeName) || !AllowedExtensions.Contains(ext))
+            throw new ArgumentException("Invalid file type.");
+
         var product = await _productRepository.GetByIdAsync(productId, userId);
         if (product is null)
             return null;
@@ -24,7 +35,7 @@ public class DocumentService
         var uploadsRoot = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
         Directory.CreateDirectory(uploadsRoot);
 
-        var storedName = $"{Guid.NewGuid()}_{fileName}";
+        var storedName = $"{Guid.NewGuid()}{ext}";
         var filePath = Path.Combine(uploadsRoot, storedName);
 
         await using (var fileStream = File.Create(filePath))
@@ -37,7 +48,7 @@ public class DocumentService
             Id = Guid.NewGuid(),
             UserId = userId,
             ProductId = productId,
-            FileName = fileName,
+            FileName = safeName,
             FilePath = filePath,
             UploadedAt = DateTime.UtcNow
         };
