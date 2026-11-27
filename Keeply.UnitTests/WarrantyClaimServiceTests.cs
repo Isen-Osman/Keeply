@@ -33,4 +33,16 @@ public class WarrantyClaimServiceTests
         Assert.Equal("Invalid status.", error);
         Assert.Null(result);
     }
+
+    [Fact]
+    public async Task UpdateStatusAsync_ReturnsError_ForMissingClaim()
+    {
+        var service = new WarrantyClaimService(new FakeWarrantyClaimRepository(), new FakeProductRepository());
+
+        var (success, error, result) = await service.UpdateStatusAsync(Guid.NewGuid(), Guid.NewGuid(), new UpdateClaimStatusRequest("Resolved"));
+
+        Assert.False(success);
+        Assert.Equal("Claim not found.", error);
+        Assert.Null(result);
+    }
 }
