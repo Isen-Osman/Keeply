@@ -49,18 +49,18 @@ public class WarrantyClaimService
         return MapToResponse(claim);
     }
 
-    public async Task<ClaimResponse?> UpdateStatusAsync(Guid id, Guid userId, UpdateClaimStatusRequest request)
+    public async Task<(bool Success, string? Error, ClaimResponse? Claim)> UpdateStatusAsync(Guid id, Guid userId, UpdateClaimStatusRequest request)
     {
         if (!AllowedStatuses.Contains(request.Status))
-            return null;
+            return (false, "Invalid status.", null);
 
         var claim = await _claimRepository.GetByIdAsync(id, userId);
         if (claim is null)
-            return null;
+            return (false, "Claim not found.", null);
 
         claim.Status = request.Status;
         await _claimRepository.UpdateAsync(claim);
-        return MapToResponse(claim);
+        return (true, null, MapToResponse(claim));
     }
 
     private static ClaimResponse MapToResponse(WarrantyClaim claim)
