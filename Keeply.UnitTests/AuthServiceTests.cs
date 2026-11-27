@@ -42,12 +42,32 @@ public class AuthServiceTests
     }
 
     [Fact]
+    public async Task LoginAsync_ReturnsNull_ForUnknownEmail()
+    {
+        var service = CreateService();
+
+        var result = await service.LoginAsync(new LoginRequest("missing@b.com", "pass"));
+
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task RefreshAsync_ReturnsNull_ForExpiredToken()
     {
         var repo = new FakeUserRepository([new User { Id = Guid.NewGuid(), Email = "a@b.com", RefreshToken = "rt", RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(-1) }]);
         var service = CreateService(repo);
 
         var result = await service.RefreshAsync(new RefreshRequest("rt"));
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task RefreshAsync_ReturnsNull_ForInvalidToken()
+    {
+        var service = CreateService();
+
+        var result = await service.RefreshAsync(new RefreshRequest("missing"));
 
         Assert.Null(result);
     }

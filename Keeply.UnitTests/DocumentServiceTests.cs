@@ -25,4 +25,26 @@ public class DocumentServiceTests
         Assert.True(deleted);
         Assert.False(File.Exists(path!));
     }
+
+    [Fact]
+    public async Task UploadAsync_Throws_ForInvalidExtension()
+    {
+        var userId = Guid.NewGuid();
+        var product = new Product { Id = Guid.NewGuid(), UserId = userId, Name = "P", Store = "S", PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow), WarrantyMonths = 12 };
+        var service = new DocumentService(new FakeDocumentRepository(), new FakeProductRepository([product]));
+        using var stream = new MemoryStream([1, 2, 3]);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => service.UploadAsync(userId, product.Id, "bad.exe", stream, stream.Length));
+    }
+
+    [Fact]
+    public async Task UploadAsync_Throws_ForTooLargeFile()
+    {
+        var userId = Guid.NewGuid();
+        var product = new Product { Id = Guid.NewGuid(), UserId = userId, Name = "P", Store = "S", PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow), WarrantyMonths = 12 };
+        var service = new DocumentService(new FakeDocumentRepository(), new FakeProductRepository([product]));
+        using var stream = new MemoryStream([1]);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => service.UploadAsync(userId, product.Id, "ok.pdf", stream, 6 * 1024 * 1024));
+    }
 }
