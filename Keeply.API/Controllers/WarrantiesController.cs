@@ -25,9 +25,9 @@ public class WarrantiesController : ControllerBase
     }
 
     [HttpGet("expiring")]
-    public async Task<IActionResult> GetExpiring()
+    public async Task<IActionResult> GetExpiring([FromQuery] int days = 30)
     {
-        var warranties = await _warrantyService.GetExpiringAsync(User.GetUserId());
+        var warranties = await _warrantyService.GetExpiringAsync(User.GetUserId(), days);
         return Ok(warranties);
     }
 
