@@ -33,18 +33,20 @@ public class GlobalExceptionMiddleware
             if (context.Response.HasStarted)
                 return;
 
-            await WriteProblemAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            var detail = context.RequestServices.GetRequiredService<IHostEnvironment>().IsDevelopment() ? ex.ToString() : null;
+            await WriteProblemAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.", detail);
         }
     }
 
-    private static async Task WriteProblemAsync(HttpContext context, int statusCode, string? title = null)
+    private static async Task WriteProblemAsync(HttpContext context, int statusCode, string? title = null, string? detail = null)
     {
         context.Response.ContentType = "application/problem+json";
 
         var problem = new ProblemDetails
         {
             Status = statusCode,
-            Title = title ?? GetTitle(statusCode)
+            Title = title ?? GetTitle(statusCode),
+            Detail = detail
         };
 
         await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
