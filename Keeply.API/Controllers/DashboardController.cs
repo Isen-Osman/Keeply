@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using Keeply.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Keeply.API.Extensions;
 
 namespace Keeply.API.Controllers;
 
@@ -20,15 +20,8 @@ public class DashboardController : ControllerBase
     [HttpGet("summary")]
     public async Task<IActionResult> GetSummary()
     {
-        var summary = await _dashboardService.GetSummaryAsync(GetUserId());
+        var summary = await _dashboardService.GetSummaryAsync(User.GetUserId());
         return Ok(summary);
     }
 
-    private Guid GetUserId()
-    {
-        var value = User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? User.FindFirstValue(ClaimTypes.Name)
-            ?? User.FindFirstValue("sub");
-        return Guid.Parse(value!);
-    }
 }
